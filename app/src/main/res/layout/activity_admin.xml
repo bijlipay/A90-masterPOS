@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/dimen_20dp"
+        android:paddingTop="@dimen/dimen_10dp"
+        android:paddingRight="@dimen/dimen_20dp"
+        android:paddingBottom="@dimen/dimen_10dp"
+        tools:context=".activity.AdminActivity">
+
+        <TextView
+            android:id="@+id/spinnerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zcmk_type"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/spinnerZCMKType"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/spinnerZCMKType" />
+
+        <Spinner
+            android:id="@+id/spinnerZCMKType"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            app:layout_constraintLeft_toRightOf="@id/spinnerTitle"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btLoadZCMK"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinnerZCMKType" />
+
+        <Button
+            android:id="@+id/btLoadCMI"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btLoadZCMK" />
+
+        <Button
+            android:id="@+id/btLoadCMA"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btLoadCMI" />
+
+        <Button
+            android:id="@+id/btLoadCMTK"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btLoadCMA" />
+
+        <Button
+            android:id="@+id/btLoadKeyVer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:text="@string/btn_load_key_ver"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btLoadCMTK" />
+
+
+        <Button
+            android:id="@+id/btDelZCMK"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_zcmk"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/btDelAll"
+            app:layout_constraintTop_toBottomOf="@id/btLoadKeyVer" />
+
+        <Button
+            android:id="@+id/btDelAll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_all_keys"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/btDelZCMK"
+            app:layout_constraintLeft_toRightOf="@+id/btDelZCMK"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btDelZCMK" />
+
+        <Button
+            android:id="@+id/btDelCMI"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_cmi"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btDelZCMK"
+            app:layout_constraintLeft_toRightOf="@id/btDelZCMK"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btDelZCMK"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/btDelCMA"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_cma"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/btDelCMTK"
+            app:layout_constraintTop_toBottomOf="@id/btDelZCMK" />
+
+        <Button
+            android:id="@+id/btDelCMTK"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_cmtk"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btDelCMA"
+            app:layout_constraintLeft_toRightOf="@id/btDelCMA"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btDelCMA" />
+
+        <Button
+            android:id="@+id/btDelVer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_red"
+            android:text="@string/del_ver"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/btDelAll"
+            app:layout_constraintTop_toBottomOf="@id/btDelCMA" />
+
+        <Button
+            android:id="@+id/btPrint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:backgroundTint="@color/color_green"
+            android:text="@string/btn_print"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/btDelVer"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:layout_marginTop="@dimen/dimen_20dp"
+            android:layout_marginRight="@dimen/dimen_20dp"
+            android:lineSpacingExtra="@dimen/dimen_5dp"
+            android:text="@string/info"
+            android:textColor="@color/black"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btPrint" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

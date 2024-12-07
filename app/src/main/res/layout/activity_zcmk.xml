@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="@dimen/dimen_20dp"
+    android:paddingRight="@dimen/dimen_20dp"
+    android:paddingTop="@dimen/dimen_10dp"
+    android:paddingBottom="@dimen/dimen_10dp">
+
+    <EditText
+        android:id="@+id/etComponent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_40dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:hint="@string/hint_input_component_1"
+        android:maxLength="64"
+        android:maxLines="1"/>
+
+    <Button
+        android:id="@+id/btConfirmCom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_15dp"
+        android:paddingTop="@dimen/dimen_5dp"
+        android:paddingBottom="@dimen/dimen_5dp"
+        app:layout_constraintTop_toBottomOf="@id/etComponent"
+        app:layout_constraintRight_toLeftOf="@id/etComponent"
+        app:layout_constraintRight_toRightOf="@id/etComponent"
+        android:textColor="@color/white"
+        android:text="@string/btn_confirm"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

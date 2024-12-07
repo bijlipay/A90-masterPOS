@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="@dimen/dimen_20dp"
+    android:paddingRight="@dimen/dimen_20dp"
+    android:paddingTop="@dimen/dimen_10dp"
+    android:paddingBottom="@dimen/dimen_10dp">
+
+   <!-- <Button
+        android:id="@+id/btInitPort"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dimen_10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textColor="@color/white"
+        android:text="@string/btn_init_port"/>-->
+
+    <TextView
+        android:id="@+id/spinnerOp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transfer Type"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dimen_10dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerTransferType"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="@dimen/dimen_10dp"
+        app:layout_constraintLeft_toRightOf="@id/spinnerOp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/spinnerOp"
+        app:layout_constraintBottom_toBottomOf="@id/spinnerOp"/>
+
+    <Button
+        android:id="@+id/btDerive"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_25dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spinnerOp"
+        android:textColor="@color/white"
+        android:text="@string/btn_transfer_tdes"/>
+
+    <ProgressBar
+        android:id="@+id/pbSending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="gone"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
