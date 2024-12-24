@@ -4,12 +4,38 @@ import android.os.Handler
 import android.os.Message
 import com.vanstone.redsysa90prokeypos.bean.CmiCmaCmtkInfo
 import com.vanstone.redsysa90prokeypos.bean.FileKeyVerInfo
+import com.vanstone.redsysa90prokeypos.bean.KeyInfo
 import com.vanstone.redsysa90prokeypos.bean.KeyVerInfo
 import com.vanstone.redsysa90prokeypos.bean.ZCMKInfo
 import com.vanstone.redsysa90prokeypos.params.Constants
 import com.vanstone.trans.api.PrinterApi
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object PrintUtil {
+    fun printKeyinj (keyinjinfo: KeyInfo, handler: Handler) {
+        var formatterdate = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        var date = LocalDateTime.now().format(formatterdate)
+        var formattertime = DateTimeFormatter.ofPattern("hh:mm:ss")
+        var time = LocalDateTime.now().format(formattertime)
+        PrinterApi.PrnClrBuff_Api()
+        PrinterApi.PrnFontSet_Api(24, 24, 0)
+        PrinterApi.printSetGray_Api(10)
+        PrinterApi.PrnLineSpaceSet_Api(0, 0)
+        PrinterApi.printSetAlign_Api(1)
+        PrinterApi.PrnStr_Api("Key Download Info")
+        PrinterApi.PrnStr_Api("-------------------------------------------------------------------------------")
+        PrinterApi.printSetAlign_Api(0)
+        PrinterApi.PrnStr_Api("Datetime:    ${date} ${time}")
+        PrinterApi.PrnStr_Api("Index:        0")
+        PrinterApi.PrnStr_Api("KCV:         ${keyinjinfo.kcv}")
+        PrinterApi.PrnStr_Api("serial no:   ${keyinjinfo.serialNo}")
+        PrinterApi.printSetAlign_Api(1)
+        PrinterApi.PrnStr_Api("-------------------------------------------------------------------------------")
+        PrinterApi.PrnStr_Api("\n\n\n\n\n")
+        printData(handler)
+    }
+
     fun printZCMK(zcmkInfo: ZCMKInfo, handler: Handler) {
         PrinterApi.PrnClrBuff_Api()
         PrinterApi.PrnFontSet_Api(24, 24, 0)

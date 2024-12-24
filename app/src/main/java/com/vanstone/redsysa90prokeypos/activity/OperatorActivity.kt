@@ -23,6 +23,7 @@ import com.vanstone.redsysa90prokeypos.bean.KeyInfo
 import com.vanstone.redsysa90prokeypos.params.Constants
 import com.vanstone.redsysa90prokeypos.tools.DataBaseOpenHelper
 import com.vanstone.redsysa90prokeypos.tools.Tools
+import com.vanstone.redsysa90prokeypos.tools.PrintUtil
 import com.vanstone.redsysa90prokeypos.tools.Utils
 import com.vanstone.trans.api.MathsApi
 import com.vanstone.trans.api.PedApi
@@ -189,7 +190,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         // 2 bytes length
                         offset1 += 2
 
-                        val serial = CommonConvert.ascStringToBCD(serialno)
+                        val serial = CommonConvert.StringToBytes(serialno)
                         serial.copyInto(dataToBeSent1,offset1,0, serial.size)
                         offset1 += serial.size
 
@@ -207,7 +208,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         offset1 += 1
                     }
                     // start to send data
-                    Log.d("btDerive",  "data sent"+ CommonConvert.bytesToString(dataToBeSent1,0,offset1))
+                    Log.d("btDerive",  "data sent"+ CommonConvert.bytesToHexString(dataToBeSent1))
                     var totalSendLen1 = 0
                     var wIndex1 = 0
                     var sendBlockLen1 = 0
@@ -220,6 +221,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         ret = App.driver.WriteData(dataToBeSent1.copyOfRange(wIndex1, wIndex1 + sendBlockLen1), sendBlockLen1)
                         //Utils.showToast(applicationContext, "ping successfully")
                         Log.d("btDerive",  "ping requested")
+                        Log.d("btDerive", "return=> ${ret} request sent=> ${sendBlockLen1}")
                         if (ret < sendBlockLen1) {
                             handler!!.sendEmptyMessage(Constants.ERR_SEND_DATA)
                             return@launch
@@ -239,7 +241,8 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                     var totalLen1 = 0
                     var loc1 = 0
                     val allDataReceived1 = ByteArray(128)
-                    val tempBuf1 = ByteArray(16)
+                    val tempBuf1 = ByteArray(50)
+                    val tmpBuf1 = ByteArray(50)
                     val bLen1 = ByteArray(2)
                     var rlen1 = 0
                     // ----------------------------------------------------------------------------
@@ -256,16 +259,27 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                         if (rlen1 > 0) {
                             Utils.printLogs(CommonConvert.bytesToHexString(ByteUtils.subBytes(tempBuf1, 0, rlen1)))
-                            Log.d("btDerive", "read data $tempBuf1")
+                            Log.d("btDerive", "read data ${CommonConvert.bytesToHexString(ByteUtils.subBytes(tempBuf1, 0, rlen1))}")
                             Log.d("btDerive",  "ping successfully")
                         }
 
                         if (rlen1 <= 0) {
                             continue
                         }
+                        /*for(i in 0..rlen1){
+                            if (tempBuf1[i].equals(0x02)) {
+                                ByteUtils.memcpy(tmpBuf1, 0, tempBuf1, i, rlen1-i)
+                                rlen1 -= i
+                                break
+                            }
+                        }*/
+                        Log.d("btDerive", "length received $rlen1")
+
+                        var startindex = CommonConvert.bytesToHexString(ByteUtils.subBytes(tempBuf1, 0, 1))
+                        Log.d("btDerive", "start index $startindex")
 
                         if (!isLenGet1) {
-                            if (tempBuf1[0].toInt() != 0x02) {
+                            if (!startindex.equals("02", false)) {
                                 handler!!.sendEmptyMessage(Constants.ERR_DATA_ERROR)
                                 return@launch
                             }
@@ -273,17 +287,19 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                                 continue
                             }
                             isLenGet1 = true
-                            ByteUtils.memcpy(bLen1, 0, tempBuf1, 1, 2)
-                            val strLen = CommonConvert.bytes2HexString(bLen1)
+                            //ByteUtils.memcpy(bLen1, 0, tempBuf1, 1, 2)
+                            val strLen = CommonConvert.bytes2HexString(ByteUtils.subBytes(tempBuf1, 1, 2))
                             dataLen1 = strLen.toInt(16)
                             totalLen1 = 1 + 2 + dataLen1 + 1
                             Utils.printLogs("dataLen = $dataLen1,   totalLen = $totalLen1")
+                            Log.d("btDerive", "dataLen = $dataLen1,   totalLen = $totalLen1")
                         }
 
                         ByteUtils.memcpy(allDataReceived1, loc1, tempBuf1, 0, rlen1)
                         loc1 += rlen1
 
                         Utils.printLogs("currentLoc = $loc1")
+                        Log.d("btDerive", "currentLoc = $loc1")
 
                         if (loc1 < totalLen1) {
                             continue
@@ -291,8 +307,10 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         break
                     }
                     val slaveserial = allDataReceived1.copyOfRange(3,14)
-                    val slserial = "0"+CommonConvert.bcdToASCString(slaveserial)
+                    Log.d("btDerive", "serial = ${CommonConvert.bcdToASCString(slaveserial)}")
+                    val slserial = "0"+convertAsctoString(CommonConvert.bcdToASCString(slaveserial))
                     Utils.printLogs("d1 = ${slserial}")
+                    Log.d("btDerive", "SL = ${slserial}")
 
                     //query the serial no by fetch the database
                     val keyList = mutableListOf<KeyInfo>()
@@ -302,15 +320,37 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                     var offset2 = 0
                     var j = 0
                     var ret3 = queryKey(keyList)
+                    Log.d("btDerive", "query return = ${ret3}  key count : ${keyList.count()}")
                     if (ret3 != 0) {
                         handler!!.sendEmptyMessage(ret3)
                         return@launch
                     }
-                    while (keyList[j].serialNo.equals(slserial,true))
-                        j++
+                    if (j == keyList.count()) {
+                        Log.d("btDerive", "no record found")
+                        handler!!.sendEmptyMessage(Constants.ERR_KEYFILE_NOT_EXISTS)
+                        return@launch
+                    }
+                    Log.d("btDerive", "serial fetch ${keyList[j].serialNo} pinged serial ${slserial}")
+                    while (!keyList[j].serialNo.equals(slserial,false)) {
+                        Log.d("btDerive", "serial no not match")
+                        if (j < keyList.count())
+                            j++
+                        if (j == keyList.count()) {
+                            Log.d("btDerive", "no record found")
+                            handler!!.sendEmptyMessage(Constants.ERR_NO_KEY_MATCH)
+                            return@launch
+                        }
+                    }
+                    Log.d("btDerive", "serial no found ${keyList[j].serialNo}")
+                    Log.d("btDerive", "encrypted key ${keyList[j].key}")
                     var ret2 = 0
+                    var flag: Int = 1
+                    var tempBuf = ByteArray(16)
+                    var tempBuff = CommonConvert.ascStringToBCD("00000000000000000000000000000000")
                     encryptedin = CommonConvert.ascStringToBCD(keyList[j].key)
                     ret2 = PedApi.PEDDes_Api(Constants.ZCMK_INDEX, 0x83, 0x01, encryptedin, 16, decrypKeyout)
+                    MathsApi.Des3Calc_Api(tempBuff,tempBuf, decrypKeyout, 1)
+                    Log.d("btDerive", "decrypted key ${CommonConvert.bcdToASCString(decrypKeyout)}   kcv  ${CommonConvert.bcdToASCString(tempBuf,0,6)}")
                     if (transferType == Constants.TRANSFER_TYPE_TDES) {
                         /**
                          *  key request
@@ -331,14 +371,16 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         // 2 bytes length
                         offset2 += 2
 
-                        val serial = CommonConvert.ascStringToBCD(slserial)
+                        val serial = CommonConvert.StringToBytes(slserial)
                         serial.copyInto(dataToBeSent2,offset2,0, serial.size)
                         offset2 += serial.size
 
-                        dataToBeSent2[offset2] = 0x01
+                        dataToBeSent2[offset2] = 1
                         offset2 += 1
 
-                        val keyval = decrypKeyout
+                        //val keyval = decrypKeyout
+                        val keyval = ByteArray(16)
+                        ByteUtils.memcpy(keyval, 0, decrypKeyout, 0, 16)
                         keyval.copyInto(dataToBeSent2,offset2,0, keyval.size)
                         offset2 += keyval.size
 
@@ -352,7 +394,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                         // Verification value
                         //Utils.printLogs("Data to be verified = ${CommonConvert.bcdToASCString(dataToBeSent1.copyOfRange(1, offset1))}")
-                        dataToBeSent2[offset2] = MathsApi.XorCalc_Api(dataToBeSent1.copyOfRange(1, offset2), offset1 - 1).toByte()
+                        dataToBeSent2[offset2] = MathsApi.XorCalc_Api(dataToBeSent2.copyOfRange(1, offset2), offset2 - 1).toByte()
                         offset2 += 1
 
                         // 0x03
@@ -378,7 +420,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         // 2 bytes length
                         offset2 += 2
 
-                        val serial = CommonConvert.ascStringToBCD(slserial)
+                        val serial = CommonConvert.StringToBytes(slserial)
                         serial.copyInto(dataToBeSent2,offset2,0, serial.size)
                         offset2 += serial.size
 
@@ -387,12 +429,12 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                         val keyval = decrypKeyout
                         keyval.copyInto(dataToBeSent2,offset2,0, keyval.size)
-                        offset2 += keyval.size
+                        offset2 += 16
 
 
-                        val kcvval = CommonConvert.ascStringToBCD(keyList[j].kcv)
+                        val kcvval = CommonConvert.StringToBytes(keyList[j].kcv)
                         kcvval.copyInto(dataToBeSent2,offset2,0, kcvval.size)
-                        offset2 += kcvval.size
+                        offset2 += kcvval.size/2
 
 
                         dataToBeSent2[1] = ((offset2 - 2) / 256).toByte()
@@ -400,7 +442,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                         // Verification value
                         //Utils.printLogs("Data to be verified = ${CommonConvert.bcdToASCString(dataToBeSent1.copyOfRange(1, offset1))}")
-                        dataToBeSent2[offset2] = MathsApi.XorCalc_Api(dataToBeSent2.copyOfRange(1, offset2), offset1 - 1).toByte()
+                        dataToBeSent2[offset2] = MathsApi.XorCalc_Api(dataToBeSent2.copyOfRange(1, offset2), offset2 - 1).toByte()
                         offset2 += 1
 
                         // 0x03
@@ -408,16 +450,19 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                         offset2 += 1
                     }
                     // start to send data
+                    Log.d("btDerive",  "data sent1  "+ CommonConvert.bytesToHexString(dataToBeSent2))
                     var totalSendLen2 = 0
                     var wIndex2 = 0
                     var sendBlockLen2 = 0
                     while (totalSendLen2 < offset2){
-                        sendBlockLen2 = if ((offset2 - totalSendLen2) >= 32){
+                        /*sendBlockLen2 = if ((offset2 - totalSendLen2) >= 32){
                             32
                         }else{
                             offset2 % 32
-                        }
-                        ret = App.driver.WriteData(dataToBeSent1.copyOfRange(wIndex2, wIndex2 + sendBlockLen2), sendBlockLen1)
+                        }*/
+                        sendBlockLen2 = offset2
+                        ret = App.driver.WriteData(dataToBeSent2.copyOfRange(wIndex2, wIndex2 + sendBlockLen2), sendBlockLen2)
+                        Log.d("btDerive",  "return length ${ret} send length ${sendBlockLen2}")
                         if (ret < sendBlockLen2) {
                             handler!!.sendEmptyMessage(Constants.ERR_SEND_DATA)
                             return@launch
@@ -453,12 +498,14 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                         if (rlen2 > 0) {
                             Utils.printLogs(CommonConvert.bytesToHexString(ByteUtils.subBytes(tempBuf2, 0, rlen2)))
+                            Log.d("btDerive", "read data1 ${CommonConvert.bytesToHexString(ByteUtils.subBytes(tempBuf2, 0, rlen2))}")
                         }
 
                         if (rlen2 <= 0) {
                             continue
                         }
 
+                        Log.d("btDerive", "length received $rlen2")
                         if (!isLenGet2) {
                             if (tempBuf2[0].toInt() != 0x02) {
                                 handler!!.sendEmptyMessage(Constants.ERR_DATA_ERROR)
@@ -473,6 +520,7 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                             dataLen2 = strLen.toInt(16)
                             totalLen2 = 1 + 2 + dataLen2 + 1
                             Utils.printLogs("dataLen = $dataLen2,   totalLen = $totalLen2")
+                            Log.d("btDerive",  "dataLen2 = $dataLen2,   totalLen2 = $totalLen2")
                         }
 
                         ByteUtils.memcpy(allDataReceived2, loc2, tempBuf2, 0, rlen2)
@@ -509,9 +557,10 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
                     contentValues.put(DataBaseOpenHelper.KEY_TMK_INDEX, 1)
                     DataBaseOpenHelper.insert(DataBaseOpenHelper.TABLE_KEYEXPORT_INFO,contentValues)
 
-
+                    Log.d("btDerive",  "key injected successfully")
 
                     handler!!.sendEmptyMessage(Constants.STATUS_SUCCESS)
+                    PrintUtil.printKeyinj(keyList[j], handler!!)
 
 
 //                    var ciVersion: KeyVerInfo? = null
@@ -968,6 +1017,14 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
         return 0
     }
 
+    private fun convertAsctoString (serial: String): String {
+        val data = ByteArray(serial.length/2)
+        for (i in data.indices) {
+            data[i] = serial.substring(i*2, (i+1)*2).toInt(16).toByte()
+        }
+        return String(data)
+    }
+
     private fun queryKey(keyList: MutableList<KeyInfo>): Int {
         val keyInfo = DataBaseOpenHelper.query(DataBaseOpenHelper.TABLE_KEYIMPORT_INFO, "")
         if (keyInfo.count != 1)
@@ -975,9 +1032,9 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
         else {
             var i = 0
             while (keyInfo.moveToNext()) {
-                val key = keyInfo.getString(1)
-                val kcv = keyInfo.getString(2)
-                val serial = keyInfo.getString(3)
+                val key = keyInfo.getString(2)
+                val kcv = keyInfo.getString(3)
+                val serial = keyInfo.getString(4)
                 keyList.add(KeyInfo(key, kcv, serial))
             }
             if (i >= keyInfo.count)
@@ -1070,6 +1127,14 @@ class OperatorActivity : AppCompatActivity(), View.OnClickListener, CoroutineSco
 
                 Constants.ERR_DATA_ERROR -> {
                     Utils.showToast(applicationContext, "Data error")
+                }
+
+                Constants.ERR_KEYFILE_NOT_EXISTS -> {
+                    Utils.showToast(applicationContext, "No keyfile exist")
+                }
+
+                Constants.ERR_NO_KEY_MATCH -> {
+                    Utils.showToast(applicationContext, "No available key")
                 }
 
                 Constants.ERR_GEN_CI -> {
